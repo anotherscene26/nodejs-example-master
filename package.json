@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-example-master",
+  "version": "0.0.0",
+  "description": "Node.js on OpenShift ====================",
+  "main": "server.js",
+  "dependencies": {
+    "connect": "~2.13.0",
+    "socket.io": "~0.9.16"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anotherscene26/nodejs-example-master.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anotherscene26/nodejs-example-master/issues"
+  },
+  "homepage": "https://github.com/anotherscene26/nodejs-example-master"
+}
