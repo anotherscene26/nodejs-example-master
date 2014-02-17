@@ -9,7 +9,7 @@ var httpServer = http.createServer(function(request, response) {
 	var page = url.parse(request.url).pathname;
 	
 	if (page=='/chat'){
-    fs.readFile("/app.html", "utf8", function(error, content) {
+    fs.readFile( __dirname +'/app.html', "utf8", function(error, content) {
     	
         response.writeHeader(200, {"Content-Type": "text/html"});
         response.end(content);
