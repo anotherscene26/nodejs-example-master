@@ -4,7 +4,7 @@ var http = require('http');
 var fs = require('fs');
 //Get the environment variables we need.
 var ipaddr  = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
-var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var port    = process.env.OPENSHIFT_NODEJS_PORT || 4141 ;
 var httpServer = http.createServer(function(request, response) {
 	
     fs.readFile( __dirname +'/app.html', "utf8", function(error, content) {
