@@ -1,19 +1,17 @@
 #!/bin/env node
 //  OpenShift sample Node application
 var http = require('http');
-
+var fs = require('fs');
 //Get the environment variables we need.
 var ipaddr  = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
 var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 var httpServer = http.createServer(function(request, response) {
-	var page = url.parse(request.url).pathname;
 	
-	if (page=='/chat'){
     fs.readFile( __dirname +'/app.html', "utf8", function(error, content) {
     	
         response.writeHeader(200, {"Content-Type": "text/html"});
         response.end(content);
-    });};
+    });
     
      
  
