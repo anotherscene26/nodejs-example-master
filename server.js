@@ -1,36 +1,144 @@
-#!/bin/env node
-//  OpenShift sample Node application
-var http = require('http');
-var fs = require('fs');
-//Get the environment variables we need.
+
+//Variables openshift
 var ipaddr  = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
 var port    = process.env.OPENSHIFT_NODEJS_PORT || 8080 ;
-var httpServer = http.createServer(function(request, response) {
+
+//Création du serveur http
+var http = require('http');
+var httpServ = http.createServer().listen(port, ipaddr);
+
+// Création de la socket
+var io = require('socket.io').listen(httpServ);
+
+// Création des variables nécessaires:
+
+var channels = new Array();// Liste des canaux
+var i=0;
+var timeout;
+var tm;
+var clients;
+
+
+// Création des fonctions nécessaires:
+/** Fonction contains* */
+// Besoin de vérifier si le canal existe ou pas ?
+Array.prototype.contains = function(obj) {
+	var i = this.length;
+	while (i--) {
+		if (this[i] === obj) {
+			return true;
+		}
+	}
+	return false;
+};
+
+// Listeners du serveur
+io.sockets.on('connection', function(socket) {
 	
-    fs.readFile( __dirname +'/app.html', "utf8", function(error, content) {
-    	
-        response.writeHeader(200, {"Content-Type": "text/html"});
-        response.end(content);
-    });
-    
-     
+	console.log(socket.transport);
+
+	
+	socket.on('createChannel', function(channel) {
+	
+		// TODO : récupérer l'id de la personne qui a créé le canal
+	// var idUser=socket.id;
+		
+		if (channels.contains(channel)){
+		console.log("Warning : channel already exists " + channel);	
+		socket.emit("channelcreated", channel);
+		console.log ("Successful creation of " + channel);
+		}
+		
+		else{channels.push(channel);
+		socket.emit("channelcreated", channel);
+		console.log ("Successful creation of " + channel);
+			}
+
+	
+		
+	});
+
+	// TODO
+	socket.on('createNewChannel', function() {
+		// var idUser=socket.id;
+		// TODO : récupérer l'id de la personne qui a créé le canal
+	
+		var newChannel = ("channel " + i);
+		i++;
+		channels.push(newChannel);
+		console.log(channels);
+		socket.emit("newChannel", newChannel);
+		console.log("New channel created " + newChannel);
+	});
+
+	socket.on('subscribe', function(channel) {
+		
+		if (channels.contains(channel)){socket.join(channel);
+		console.log ("Subscribe successful to " + channel);}
+		
+		else {console.log("Subscription : channel doesn't exist " + channel);}
+
+	});
+
+	socket.on('publish', function(channel, data) {
+		if (channels.contains(channel)){io.sockets.in(channel).emit('published', data);}
+		else {console.log("Publication : channel doesn't exist " + channel);}
+		
+		// todo : remplacer les console.log en gestionnaires d'erreur
+	
+		
+	});
+
+	socket.on('unsubscribe', function(channel) {
+	
+		if (channels.contains(channel))
+		
+		{socket.leave(channel);
+		console.log ("Unsubscribe successful from " + channel);
+		clients = io.sockets.clients(channel).length;
+		console.log(clients);
+		setTimeout(function(){
+		if (clients==0){
+	
+		channels.pop(channel);
+		console.log("Channel destroyed ! ");
+			
+		}
+		}, tm);
+		
+		}
+		else {console.log("Unsubscribe : channel doesn't  exist " + channel);}
+	});
+	
+	
+	socket.on('timeout set', function(timeout){
  
-}).listen(port,ipaddr);
+		tm=timeout;
+		timeout=true;
+	
+		});
+		
 
-var io = require('socket.io').listen(httpServer);
+	// TODO : LATER
+	socket.on('subsists', function(subsisted, channel){
+		// IDUSER?
+		if (idUser==socket.id){
+				
+				
+			}
+		
+		
+	});
+	
+	// TODO
+	socket.on('getchannelinfo', function(channel){
+		
+		// Quelles infos renvoyer ?
+		
+		
+		
+	});
 
-
-io.sockets.on('connection', function (socket, pseudo) {
-    // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
-    socket.on('nouveau_client', function(pseudo) {
-        socket.set('pseudo', pseudo);
-        socket.broadcast.emit('nouveau_client', pseudo);
-    });
-
-    // Dès qu'on reçoit un message, on récupère le pseudo de son auteur et on le transmet aux autres personnes
-    socket.on('message', function (message) {
-        socket.get('pseudo', function (error, pseudo) {
-            socket.broadcast.emit('message', {pseudo: pseudo, message: message});
-        });
-    }); 
 });
+
+console.log('Server running at http://localhost:1337/');
